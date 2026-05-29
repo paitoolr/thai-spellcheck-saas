@@ -111,6 +111,20 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsPanel.classList.add('hidden');
     });
 
+    // ─── Mode Change Placeholder Handler ───
+    editMode.addEventListener('change', () => {
+        const mode = editMode.value;
+        const btnTextSpan = btnAnalyze.querySelector('span');
+        
+        if (mode === 'qa') {
+            inputText.placeholder = 'ป้อนข้อสงสัย คำถาม หลักภาษาไทย หรือพิมพ์คำสะกดที่สงสัยที่นี่... เช่น "กะเพรา กับ กระเพรา เขียนอย่างไร", "พฤษภาคม ตัวย่อเขียนอย่างไร", "เกลาประโยคนี้ให้เป็นทางการและสุภาพ"';
+            if (btnTextSpan) btnTextSpan.textContent = 'ถามผู้ช่วย AI';
+        } else {
+            inputText.placeholder = 'วางหรือพิมพ์บทความภาษาไทยที่ต้องการให้ AI ตรวจสอบและเกลาสำนวนที่นี่...';
+            if (btnTextSpan) btnTextSpan.textContent = 'วิเคราะห์ข้อความ';
+        }
+    });
+
     // ─── Text Area Character Counter ───
     inputText.addEventListener('input', () => {
         const text = inputText.value;
@@ -218,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
   "corrected": "ข้อความที่ขัดเกลาภาษาปรับปรุงสำนวนแล้วอย่างสวยงามระดับพรีเมียม",
   "explanation": "อธิบายจุดที่ทำการปรับปรุงสำนวนภาษาไทยและการเลือกคำอธิบายเป็นข้อๆ"
 }`;
-        } else {
+        } else if (mode === 'summary') {
             prompt = `คุณคือผู้เชี่ยวชาญการสรุปความเนื้อหาภาษาไทย
 กรุณาช่วยสรุปเนื้อหาของข้อความต่อไปนี้ให้อ่านเข้าใจได้ทันที ย่อส่วนใจความสำคัญ และนำเสนอแบบกระชับ
 
@@ -229,6 +243,18 @@ document.addEventListener('DOMContentLoaded', () => {
 {
   "corrected": "เนื้อหาย่อสรุปภาษาไทยแบบกระชับจับประเด็นสำคัญเป็นย่อหน้าและบรรทัดที่ลงตัว",
   "explanation": "อธิบายสรุปหัวข้อย่อยหรือประเด็นหลักที่แยกแกนใจความสั้นๆ"
+}`;
+        } else {
+            prompt = `คุณคือผู้เชี่ยวชาญด้านภาษาไทยและบรรณาธิการมืออาชีพ
+กรุณาตอบคำถามต่อไปนี้เกี่ยวกับหลักภาษาไทย คำสะกด คำทับศัพท์ การใช้ภาษา หรือข้อสงสัยเกี่ยวกับงานเขียนอย่างละเอียดและถูกต้อง 100%:
+
+คำถาม:
+"${text}"
+
+คุณต้องวิเคราะห์และตอบกลับในรูปแบบ JSON เท่านั้น โดยมีโครงสร้างดังนี้:
+{
+  "corrected": "คำตอบอธิบายความรู้หรือข้อสงสัยภาษาไทยอย่างเป็นกันเองและถูกต้องสมบูรณ์",
+  "explanation": "สรุปหลักไวยากรณ์หรือคีย์เวิร์ดคำที่ถูกต้องสั้นๆ เป็นข้อๆ"
 }`;
         }
 
