@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>อักขราธิการ AI - ระบบตรวจและเกลาสำนวนภาษาไทยอัจฉริยะ (Thai Spell Checker SaaS)</title>
+    <meta name="description" content="บริการตรวจสอบคำผิด ตรวจไวยากรณ์ และเกลาสำนวนภาษาไทยด้วยขุมพลัง AI ระดับพรีเมียม ช่วยให้งานเขียนของคุณถูกต้อง สวยงาม และน่าอ่านยิ่งขึ้น">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>อักขราธิการ <span class="badge">AI PRO</span></h1>
+                    <p>ระบบตรวจและเกลาสำนวนภาษาไทยระดับพรีเมียม</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="btn-settings" class="btn-secondary" title="ตั้งค่าเชื่อมต่อ API">
+                    <i data-lucide="settings"></i>
+                    <span>ตั้งค่าระบบ API</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="workspace">
+            <!-- Settings Modal Panel (Collapsible) -->
+            <div id="settings-panel" class="settings-panel hidden">
+                <div class="settings-header">
+                    <h3><i data-lucide="cpu"></i> ตั้งค่าเชื่อมต่อระบบปัญญาประดิษฐ์</h3>
+                    <button id="btn-close-settings" class="btn-icon"><i data-lucide="x"></i></button>
+                </div>
+                <div class="settings-body">
+                    <div class="form-group">
+                        <label for="api-provider">ผู้ให้บริการ AI (API Provider):</label>
+                        <select id="api-provider">
+                            <option value="cloudflare">Cloudflare Server API (แนะนำ - ปลอดภัยสูง)</option>
+                            <option value="gemini">Google Gemini API (ใส่คีย์ส่วนตัว)</option>
+                            <option value="ollama">Local Ollama API (รันฟรีในเครื่องไม่ใช้เน็ต)</option>
+                        </select>
+                    </div>
+
+                    <div id="cloudflare-config" class="config-section">
+                        <div class="info-box-premium">
+                            <i data-lucide="shield-check" class="text-success"></i>
+                            <div>
+                                <h5>ใช้งานผ่านเซิร์ฟเวอร์คลาวด์โดยตรง</h5>
+                                <p>ระบบจะเรียกใช้งานผ่านบริการ Cloudflare Pages Functions อย่างปลอดภัย โดยใช้โควตา API หลักของระบบ ไม่จำเป็นต้องระบุคีย์ API หรือโปรแกรมใดๆ ในเครื่องคอมพิวเตอร์ของคุณ</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="gemini-config" class="config-section hidden">
+                        <div class="form-group">
+                            <label for="gemini-key">Gemini API Key:</label>
+                            <div class="input-password-wrapper">
+                                <input type="password" id="gemini-key" placeholder="ใส่กุญแจ API AI-Gemini ของท่าน...">
+                                <button type="button" id="toggle-gemini-key" class="btn-text"><i data-lucide="eye"></i></button>
+                            </div>
+                            <small class="helper-text">กุญแจจะถูกบันทึกไว้ในเครื่องคอมพิวเตอร์ของคุณอย่างปลอดภัย (Local Storage)</small>
+                        </div>
+                    </div>
+
+                    <div id="ollama-config" class="config-section hidden">
+                        <div class="form-group">
+                            <label for="ollama-url">Ollama Host URL:</label>
+                            <input type="text" id="ollama-url" value="http://localhost:11434">
+                        </div>
+                        <div class="form-group">
+                            <label for="ollama-model">โมเดล AI (Ollama Model):</label>
+                            <input type="text" id="ollama-model" value="qwen-kongsuk:latest">
+                            <small class="helper-text">เช่น qwen-kongsuk:latest หรือ qwen2.5:3b (กรุณาตรวจสอบว่าเปิดโปรเซส Ollama ไว้แล้ว)</small>
+                        </div>
+                    </div>
+
+                    <button id="btn-save-settings" class="btn-primary full-width">บันทึกและเชื่อมต่อ</button>
+                </div>
+            </div>
+
+            <!-- Editor Core -->
+            <div class="editor-grid">
+                <!-- Left Panel: Input -->
+                <section class="editor-card input-card">
+                    <div class="card-header">
+                        <span class="card-title"><i data-lucide="file-text"></i> ข้อความที่ต้องการตรวจสอบ</span>
+                        <div class="control-actions">
+                            <button id="btn-clear" class="btn-text-danger" title="ล้างข้อความทั้งหมด"><i data-lucide="trash-2"></i> ล้าง</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <textarea id="input-text" placeholder="วางหรือพิมพ์บทความภาษาไทยที่ต้องการให้ AI ตรวจสอบและเกลาสำนวนที่นี่..." autocomplete="off"></textarea>
+                    </div>
+                    <div class="card-footer">
+                        <div class="mode-selector">
+                            <label><i data-lucide="sliders"></i> โหมดวิเคราะห์:</label>
+                            <select id="edit-mode">
+                                <option value="check">ตรวจคำผิดและสระลอย (สะกดคำ)</option>
+                                <option value="polish">เกลาสำนวนและปรับภาษา (ให้พรีเมียมขึ้น)</option>
+                                <option value="summary">ย่อความและเขียนบทสรุปแบบย่อ</option>
+                            </select>
+                        </div>
+                        <button id="btn-analyze" class="btn-primary">
+                            <i data-lucide="wand-2"></i>
+                            <span>วิเคราะห์ข้อความ</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Right Panel: Output -->
+                <section class="editor-card output-card">
+                    <div class="card-header">
+                        <span class="card-title"><i data-lucide="sparkles"></i> ผลการแก้ไขและปรับปรุง</span>
+                        <div class="control-actions">
+                            <button id="btn-copy" class="btn-secondary hidden" title="คัดลอกผลลัพธ์"><i data-lucide="copy"></i> คัดลอก</button>
+                        </div>
+                    </div>
+                    <div class="card-body output-area">
+                        <!-- Default empty state -->
+                        <div id="output-placeholder" class="placeholder-state">
+                            <i data-lucide="pen-tool" class="placeholder-icon"></i>
+                            <h4>พร้อมทำการตรวจสอบ</h4>
+                            <p>กรุณาพิมพ์ข้อความและคลิกปุ่มวิเคราะห์ ระบบ AI จะแสดงผลการแก้ไขเปรียบเทียบในพื้นที่นี้</p>
+                        </div>
+
+                        <!-- Loading state -->
+                        <div id="output-loading" class="loading-state hidden">
+                            <div class="spinner"></div>
+                            <h4>กำลังประมวลผลคำพากย์และสำนวน...</h4>
+                            <p>ผู้ช่วย AI กำลังเรียบเรียง ไวยากรณ์ สระ และเกลาสำนวนภาษาไทยอย่างชาญฉลาด</p>
+                        </div>
+
+                        <!-- Result display area -->
+                        <div id="output-result" class="result-content hidden">
+                            <div class="diff-view">
+                                <div class="diff-block">
+                                    <h5><i data-lucide="check-circle" class="text-success"></i> ข้อความที่ได้รับการแก้ไขและขัดเกลา:</h5>
+                                    <div id="corrected-text-container" class="output-text-box"></div>
+                                </div>
+                            </div>
+                            
+                            <hr class="divider">
+                            
+                            <div class="explanation-view">
+                                <h5><i data-lucide="help-circle" class="text-info"></i> บันทึกเหตุผลการแก้ไข (AI Explanations):</h5>
+                                <div id="explanation-container" class="explanation-box"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <span id="char-counter" class="info-text">ตัวอักษร: 0 ตัว | คำ: 0 คำ</span>
+                    </div>
+                </section>
+            </div>
+        </main>
+        
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
